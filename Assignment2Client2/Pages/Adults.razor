@@ -1,0 +1,111 @@
+﻿@page "/Adults"
+@using Models
+@using Assignment2Client2.Data
+@inject IAdultService AdultData
+@inject NavigationManager NavMgr
+
+<h3>Adults</h3>
+<p>
+    Filter by Last Name: <input type="text" @oninput="@((arg) => Filter(arg))" style="width: 50px"/> 
+</p>
+@if (adultsToShow == null)
+{
+    <p>
+        <em>Loading </em>
+    </p>
+}
+else if (!adultsToShow.Any())
+{
+    <p>
+        <em>No ToDo items exist.Please add some. </em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Hair Color</th>
+            <th>Eye Color</th>
+            <th>Age</th>
+            <th>Weight</th>
+            <th>Height</th>
+            <th>Sex</th>
+            <th>Job Title</th>
+            <th>Salary</th>
+            <th>Remove</th>
+            <th>Edit</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in adultsToShow)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.HairColor</td>
+                <td>@item.EyeColor</td>
+                <td>@item.Age</td>
+                <td>@item.Weight</td>
+                <td>@item.Height</td>
+                <td>@item.Sex</td>
+                <td>@item.JobTitle</td>
+                <td>@item.Salary</td>
+                
+                    <td><button @onclick= "() => RemoveAdult(item.Id)"><i class="oi oi=trash" style="color: red"/></button></td>
+                    <td><button @onclick= "() => EditAdult(item.Id)"><i class="oi oi=pencil" style="color: blue"/></button></td>
+                
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IList<Adult> adults;
+    private IList<Adult> adultsToShow;
+
+    private string? filterbyln;
+
+    private void Filter(ChangeEventArgs changeEventArgs)
+    {
+        string filterbyln = null;
+        try
+        {
+            filterbyln = changeEventArgs.Value?.ToString();
+        }
+        catch (Exception e)
+        {
+        }
+        if (filterbyln != null && !filterbyln.Equals(""))
+        {
+            adultsToShow =adults.Where(t => t.LastName.Contains(filterbyln)).ToList();
+        }
+        else
+        {
+            adultsToShow = adults;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        adults = await AdultData.GetAdultsAsync();
+        adultsToShow = adults;
+    }
+
+    private async Task RemoveAdult(int adultId)
+    {
+        Adult adultToRemove = adults.First(t => t.Id == adultId);
+        await AdultData.RemoveAdultAsync(adultId);
+        adultsToShow.Remove(adultToRemove);
+    }
+    
+    private async Task EditAdult(int Id)
+    {
+        NavMgr.NavigateTo($"EditAdult/{Id}");
+    }
+}

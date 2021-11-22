@@ -1,0 +1,81 @@
+﻿@page "/EditAdult/{Id:int}"
+@using Assignment2Client2.Data
+@using Microsoft.AspNetCore.Components
+@using Models
+@inject IAdultService AdultsData
+@inject NavigationManager NavMgr
+
+<h3>Edit Adult with id: @Id</h3>
+
+@if (adultToEdit == null)
+{
+    <em>Adult not found!</em>
+}
+else
+{
+    <EditForm Model="@adultToEdit" OnValidSubmit="@Save">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <div class="form-group">
+            First Name:<br/>
+            <InputText @bind-Value="adultToEdit.FirstName"/>
+        </div>
+        <div class="form-group">
+            Last Name:<br/>
+            <InputText @bind-Value="adultToEdit.LastName"/>
+        </div>
+        <div class="form-group">
+            Hair Color:<br/>
+            <InputText @bind-Value="adultToEdit.HairColor"/>
+        </div>
+        <div class="form-group">
+            Eye Color:<br/>
+            <InputText @bind-Value="adultToEdit.EyeColor"/>
+        </div>
+        <div class="form-group">
+            Age:<br/>
+            <InputNumber @bind-Value="adultToEdit.Age"/>
+        </div>
+        <div class="form-group">
+            Weight:<br/>
+            <InputNumber @bind-Value="adultToEdit.Weight"/>
+        </div>
+        <div class="form-group">
+            Height:<br/>
+            <InputNumber @bind-Value="adultToEdit.Height"/>
+        </div>
+        <div class="form-group">
+            Sex:<br/>
+            <InputText @bind-Value="adultToEdit.Sex"/>
+        </div>
+        <div class="form-group">
+            Job Title:<br/>
+            <InputText @bind-Value="adultToEdit.JobTitle"/>
+        </div>
+        <div class="form-group">
+            Salary:<br/>
+            <InputNumber @bind-Value="adultToEdit.Salary"/>
+        </div>
+        <p class="actions">
+            <button class="btn btn-outline-dark" type="submit">Save Change</button>
+        </p>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Adult adultToEdit;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        adultToEdit = await AdultsData.GetAsync(Id);
+    }
+
+    private void Save()
+    {
+        AdultsData.UpdateAsync(adultToEdit);
+        NavMgr.NavigateTo("/Adults");
+    }
+}
